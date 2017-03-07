@@ -11,4 +11,10 @@ $app->get('/', function (Request $req,  Response $res, $args = []) {
     return $res->withStatus(400)->write('Bad Request');
 });
 
+$app->get('/product/{id}', function (Request $request, Response $response) {
+    $productId = $request->getAttribute('id');
+    // $response->getBody()->write("Hello, $name");
+    return 'Searching product id: ' . $productId;
+});
+
 $app->run();
