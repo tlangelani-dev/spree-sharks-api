@@ -5,10 +5,38 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$app = new \Slim\App;
+$config = ['settings' => [
+    'displayErrorDetails' => true,
+        'db' => [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'database' => 'tlange0_spreesharks',
+            'username' => 'tlange0_sharks',
+            'password' => 'sharks123',
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+        ]
+]];
+
+$app = new \Slim\App($config);
+$container = $app->getContainer();
+
+// Service factory for the ORM
+$container['db'] = function ($container) {
+    $capsule = new \Illuminate\Database\Capsule\Manager;
+    $capsule->addConnection($container['settings']['db']);
+
+    $capsule->setAsGlobal();
+    $capsule->bootEloquent();
+
+    return $capsule;
+};
 
 $app->get('/', function (Request $req,  Response $res, $args = []) {
-    return $res->withStatus(400)->write('Bad Request');
+    $db = $this->get('db');
+    $users = $db->table('users')->get();
+    return json_encode($users);
 });
 
 $app->get('/product/{id}', function (Request $request, Response $response) {
